@@ -666,7 +666,8 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; backgrou
       // The lead story stays on the front page, without its picture if need be.
       if (b.kind === "lead" && overflows(body)) {
         node.classList.add("squeeze");
-        if (overflows(body)) node.classList.remove("squeeze");
+        if (overflows(body)) node.classList.add("squeeze-more");
+        if (overflows(body)) node.classList.remove("squeeze", "squeeze-more");
       }
       if (overflows(body)) {
         node.remove();
