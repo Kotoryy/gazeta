@@ -1,0 +1,39 @@
+# Prints a fresh issue of «Газета» three times a day (06:00, 12:00, 18:00 Moscow)
+# and publishes it on gazeta.kotoryy.ru. Written by the app (src/deploy.js).
+name: Печать выпуска
+
+on:
+  schedule:
+    - cron: "0 3,9,15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: print
+  cancel-in-progress: false
+
+jobs:
+  print:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Печатный станок
+        working-directory: print
+        run: npm install --no-audit --no-fund --omit=dev
+      - name: Печать
+        run: node print/print.js
+      - name: Публикация
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html issue.json
+          if git diff --cached --quiet; then echo "Без изменений"; exit 0; fi
+          git commit -m "Выпуск от $(TZ=Europe/Moscow date '+%Y-%m-%d %H:%M') (сервер)"
+          for i in 1 2 3; do git pull --rebase -X theirs origin main && git push && exit 0; sleep 5; done
+          exit 1
