@@ -366,6 +366,10 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; backgrou
 .narrow-page .wx { grid-template-columns: 1fr; }
 .narrow-page .wx-col + .wx-col { border-left: 0; padding-left: 0; }
 .narrow-page .lead-body, .narrow-page .feature { grid-template-columns: 1fr; }
+/* Medium pages: the three-day forecast moves under «now» and «today». */
+.compact-page .wx { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); row-gap: 8px; }
+.compact-page .wx-col:last-child { grid-column: 1 / -1; border-left: 0; padding-left: 0; border-top: 1px solid var(--hair); padding-top: 6px; }
+.narrow-page .wx-col:last-child { border-top: 0; padding-top: 0; }
 
 .toolbar .printed { font-style: italic; letter-spacing: .02em; }
 .toolbar { padding-top: env(safe-area-inset-top, 0px); }
@@ -802,7 +806,8 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; backgrou
     root.style.setProperty("--ph", H + "px");
     root.style.setProperty("--cols", columnsFor(W));
     root.classList.toggle("single", mode === "single");
-    root.classList.toggle("narrow-page", W < 470);
+    root.classList.toggle("narrow-page", W < 560);
+    root.classList.toggle("compact-page", W < 640);
     book.style.width = (mode === "spread" ? 2 * W : W) + "px";
     book.style.height = H + "px";
     paginate();
