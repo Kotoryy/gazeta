@@ -663,6 +663,11 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; backgrou
       if (b.span) node.classList.add("span");
       node.dataset.bid = b.bid;
       body.append(node);
+      // The lead story stays on the front page, without its picture if need be.
+      if (b.kind === "lead" && overflows(body)) {
+        node.classList.add("squeeze");
+        if (overflows(body)) node.classList.remove("squeeze");
+      }
       if (overflows(body)) {
         node.remove();
         if (body.children.length && !(body.children.length === 1 && body.firstElementChild.classList.contains("k-cont"))) {
