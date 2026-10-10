@@ -20,6 +20,14 @@
         {
           "name": "РИА Новости",
           "url": "https://ria.ru/export/rss2/archive/index.xml"
+        },
+        {
+          "name": "The Moscow Times",
+          "url": "https://sugywleuengsrgng.f2p8w4g6.live/page/rss/news"
+        },
+        {
+          "name": "РБК Главное",
+          "url": "https://rssexport.rbc.ru/rbcnews/news/30/full.rss"
         }
       ],
       "filter": "",
