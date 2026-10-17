@@ -44,6 +44,7 @@ ${inlineFonts(read("styles.css"))}
     <span id="indicatorSlot"></span>
     <button class="tb-btn tb-arrow" id="nextBtn" title="Следующий разворот (→)" aria-label="Вперёд">›</button>
     <select class="tb-select" id="contents" aria-label="В номере"></select>
+    <button class="tb-btn" id="viewBtn">Читать лентой</button>
     <span class="grow"></span>
     <span class="printed hide-narrow" id="printed"></span>
   </nav>

@@ -405,3 +405,18 @@ a .acts:has(.act.on) { opacity: 1; }
 .muted-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--hair); padding: 1px 2px 1px 8px; font-size: 13px; }
 .icon-btn.small { width: 22px; height: 22px; font-size: 11px; }
 .update-btn { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- scroll view: the whole issue on one long sheet ---------- */
+.scroller { display: none; }
+.scroll-view .book, .scroll-view .turn { display: none; }
+.scroll-view .stage { display: block; perspective: none; }
+.scroll-view .scroller { display: block; position: absolute; inset: 0; overflow-y: scroll; overflow-x: hidden; padding: 18px 16px 48px; outline: none; }
+.page.scroll-page {
+  position: relative; inset: auto; height: auto; margin: 0 auto;
+  padding: 22px 40px 32px; box-shadow: var(--shadow); overflow: visible;
+}
+.page.scroll-page::after { display: none; }
+.scroll-page .page-body { flex: none; height: auto; overflow: visible; column-fill: balance; }
+.scroll-page .blk.k-head, .scroll-page .blk.k-ads-head, .scroll-page .blk.k-market-head { margin-top: 18px; }
+.scroll-page .ear-toc li span { display: none; }
+@media (max-width: 640px) { .page.scroll-page { padding: 14px 16px 24px; } }

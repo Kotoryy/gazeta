@@ -16,6 +16,7 @@ module.exports = {
         { name: "Интерфакс", url: "https://www.interfax.ru/rss.asp" },
         { name: "Коммерсантъ", url: "https://www.kommersant.ru/RSS/main.xml" },
         { name: "РИА Новости", url: "https://ria.ru/export/rss2/archive/index.xml" },
+        { name: "РБК", url: "https://rssexport.rbc.ru/rbcnews/news/30/full.rss" },
       ],
       filter: "",
       limit: 10,

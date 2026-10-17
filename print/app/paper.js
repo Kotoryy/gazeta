@@ -281,6 +281,8 @@
   let W = 0, H = 0, mode = "spread";
   let cur = 0;           // current spread (or page in single mode)
   let busy = false;
+  let view = "flip";     // "flip": pages and spreads; "scroll": one long sheet
+  let scroller = null;   // the scrolling container of the scroll view
   const listeners = new Set();
 
   const toNode = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -413,7 +415,16 @@
     clearTimeout(readTimer);
     if (!opts.onRead) return;
     readTimer = setTimeout(() => {
-      const keys = [...slotL.querySelectorAll("[data-key]"), ...slotR.querySelectorAll("[data-key]")].map((a) => a.dataset.key);
+      let els = [...slotL.querySelectorAll("[data-key]"), ...slotR.querySelectorAll("[data-key]")];
+      if (view === "scroll") {
+        // In the long sheet, what is inside the window counts.
+        const box = scroller.getBoundingClientRect();
+        els = [...scroller.querySelectorAll("[data-key]")].filter((a) => {
+          const r = a.getBoundingClientRect();
+          return r.top >= box.top - 4 && r.bottom <= box.bottom + 4;
+        });
+      }
+      const keys = els.map((a) => a.dataset.key);
       if (keys.length) opts.onRead([...new Set(keys)]);
     }, 1500);
   }
@@ -548,15 +559,58 @@
     return { w: Math.max(300, w), h: Math.max(420, Math.floor(h)), m };
   }
 
-  function layout(keepPage) {
-    const { w, h, m } = measureStage();
-    // Remember the first block on screen to come back to it after re-pagination.
-    let anchor = null;
-    if (keepPage && pages.length) {
-      const [l, r] = spreadPages(cur);
-      const p = pages[l ?? r];
-      anchor = p && p.querySelector(".blk:not(.k-cont)")?.dataset.bid;
+  // The first block the reader has on screen, to come back to it after a re-layout.
+  function anchorBid() {
+    if (view === "scroll") {
+      const top = scroller.getBoundingClientRect().top;
+      const el = [...scroller.querySelectorAll(".blk")].find((b) => b.getBoundingClientRect().bottom > top + 8);
+      return el?.dataset.bid || null;
     }
+    if (!pages.length) return null;
+    const [l, r] = spreadPages(cur);
+    return pages[l ?? r]?.querySelector(".blk:not(.k-cont)")?.dataset.bid || null;
+  }
+
+  /* ---------- the scroll view: the whole issue on one long sheet ---------- */
+
+  function layoutScroll(anchor) {
+    // clientWidth leaves out the scrollbar, so the sheet never overflows sideways.
+    W = Math.min(scroller.clientWidth - 32, 1240);
+    root.style.setProperty("--pw", W + "px");
+    root.style.setProperty("--cols", columnsFor(W));
+    root.classList.remove("single");
+    root.classList.toggle("narrow-page", W < 560);
+    root.classList.toggle("compact-page", W < 640);
+    const sheet = document.createElement("div");
+    sheet.className = "page scroll-page";
+    sheet.innerHTML = `<div class="page-body"></div>`;
+    const body = sheet.firstElementChild;
+    sectionPage = {};
+    for (const b of blocks) {
+      const n = toNode(b.html);
+      n.classList.add("blk", "k-" + b.kind);
+      if (b.span) n.classList.add("span");
+      n.dataset.bid = b.bid;
+      if (b.sec) {
+        n.dataset.sec = b.sec;
+        if (!(b.sec in sectionPage)) sectionPage[b.sec] = 0;
+      }
+      body.append(n);
+    }
+    pages = [sheet];
+    scroller.replaceChildren(sheet);
+    const el = anchor && sheet.querySelector(`[data-bid="${anchor}"]`);
+    if (el) el.scrollIntoView({ block: "start" }); else scroller.scrollTop = 0;
+    indicator.textContent = "Прокрутка";
+    listeners.forEach((fn) => fn({ spread: 0, pages: [], total: 0 }));
+    trackRead();
+  }
+
+  function layout(keepPage, anchorOverride) {
+    root.classList.toggle("scroll-view", view === "scroll");
+    const anchor = anchorOverride !== undefined ? anchorOverride : keepPage ? anchorBid() : null;
+    if (view === "scroll") return layoutScroll(anchor);
+    const { w, h, m } = measureStage();
     W = w; H = h; mode = m;
     root.style.setProperty("--pw", W + "px");
     root.style.setProperty("--ph", H + "px");
@@ -580,6 +634,14 @@
     root.querySelector(".turn.next").addEventListener("click", () => flipTo(cur + 1));
     document.addEventListener("keydown", (e) => {
       if (e.target.closest?.("input, textarea, select, dialog[open], .mute-pop, .act")) return;
+      if (view === "scroll") {
+        // Arrows and PageDown move the long sheet even when the focus is elsewhere.
+        const step = { PageDown: 0.9, " ": 0.9, PageUp: -0.9, ArrowDown: 0.15, ArrowUp: -0.15 }[e.key];
+        if (step) { e.preventDefault(); scroller.scrollBy({ top: scroller.clientHeight * step, behavior: "smooth" }); }
+        else if (e.key === "Home") scroller.scrollTo({ top: 0, behavior: "smooth" });
+        else if (e.key === "End") scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
+        return;
+      }
       if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); flipTo(cur + 1); }
       else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); flipTo(cur - 1); }
       else if (e.key === "Home") flipTo(0);
@@ -587,6 +649,7 @@
     });
     let wheelLock = 0;
     root.querySelector(".stage").addEventListener("wheel", (e) => {
+      if (view === "scroll") return; // the wheel simply scrolls the sheet
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if (Math.abs(d) < 12 || Date.now() < wheelLock) return;
       wheelLock = Date.now() + FLIP_MS + 150;
@@ -595,7 +658,7 @@
     let sx = null, sy = 0;
     root.querySelector(".stage").addEventListener("pointerdown", (e) => { sx = e.clientX; sy = e.clientY; });
     root.querySelector(".stage").addEventListener("pointerup", (e) => {
-      if (sx == null || e.pointerType === "mouse") return;
+      if (sx == null || e.pointerType === "mouse" || view === "scroll") return;
       const dx = e.clientX - sx, dy = e.clientY - sy;
       sx = null;
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) flipTo(cur + (dx < 0 ? 1 : -1));
@@ -646,7 +709,20 @@
   }
 
   function goToSection(id) {
+    if (view === "scroll") {
+      scroller.querySelector(`[data-sec="${CSS.escape(id)}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     if (id in sectionPage) flipTo(pageToSpread(sectionPage[id]));
+  }
+
+  function setView(v) {
+    v = v === "scroll" ? "scroll" : "flip";
+    if (v === view) return;
+    const anchor = root && blocks.length ? anchorBid() : null;
+    view = v;
+    if (blocks.length) layout(false, anchor);
+    if (view === "scroll") scroller.focus({ preventScroll: true });
   }
 
   /* ---------- public ---------- */
@@ -661,9 +737,13 @@
         </div>
         <button class="turn prev" aria-label="Предыдущая страница" hidden><span>‹</span></button>
         <button class="turn next" aria-label="Следующая страница" hidden><span>›</span></button>
+        <div class="scroller" tabindex="-1"></div>
       </div>
       <div class="measure" aria-hidden="true"></div>`);
     book = root.querySelector(".book");
+    scroller = root.querySelector(".scroller");
+    let st = null;
+    scroller.addEventListener("scroll", () => { clearTimeout(st); st = setTimeout(trackRead, 300); }, { passive: true });
     slotL = root.querySelector(".slot.left");
     slotR = root.querySelector(".slot.right");
     measure = root.querySelector(".measure");
@@ -683,17 +763,19 @@
   window.Paper = {
     mount,
     render,
-    next: (instant) => flipTo(cur + 1, instant),
-    prev: (instant) => flipTo(cur - 1, instant),
-    first: () => flipTo(0),
+    next: (instant) => (view === "scroll" ? scroller.scrollBy({ top: scroller.clientHeight * 0.9, behavior: instant ? "auto" : "smooth" }) : flipTo(cur + 1, instant)),
+    prev: (instant) => (view === "scroll" ? scroller.scrollBy({ top: -scroller.clientHeight * 0.9, behavior: instant ? "auto" : "smooth" }) : flipTo(cur - 1, instant)),
+    first: () => (view === "scroll" ? scroller.scrollTo({ top: 0 }) : flipTo(0)),
     goToSection,
-    get state() { return { spread: cur, spreads: spreadCount(), pages: pages.length, busy }; },
+    setView,
+    get view() { return view; },
+    get state() { return { spread: cur, spreads: view === "scroll" ? 1 : spreadCount(), pages: pages.length, busy, view }; },
     get indicator() { return indicator; },
     onChange: (fn) => listeners.add(fn),
     sections: () => {
       const s = (issue?.sections || []).slice(1).filter((x) => x.items.length).map((x) => ({ id: x.id, title: x.title }));
       return [{ id: (issue?.sections || [])[0]?.id, title: "Первая полоса" }, ...s, { id: "ads", title: "Требуются" }, { id: "market", title: "Барахолка" }]
-        .filter((x) => x.id in sectionPage).map((x) => ({ ...x, page: sectionPage[x.id] + 1 }));
+        .filter((x) => x.id in sectionPage).map((x) => ({ ...x, page: view === "scroll" ? null : sectionPage[x.id] + 1 }));
     },
     utils: { esc, when, mskDay, fTime, fDayMonth, fShortDay },
   };
