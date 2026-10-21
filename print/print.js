@@ -3,22 +3,14 @@
 // Lives in the site repository as print/print.js next to a copy of src/ and app/.
 const fs = require("fs");
 const path = require("path");
-const defaults = require("./src/defaults");
+const { mergeSettings } = require("./src/settings");
 const { buildIssue } = require("./src/issue");
 const { buildWebEdition } = require("./src/webexport");
 
 const site = path.join(__dirname, "..");
 const readJson = (f, fallback) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return fallback; } };
 
-const saved = readJson(path.join(__dirname, "settings.json"), {});
-const cfg = {
-  ...defaults,
-  ...saved,
-  jobs: { ...defaults.jobs, ...saved.jobs },
-  market: { ...defaults.market, ...saved.market },
-  weather: { ...defaults.weather, ...saved.weather },
-  muted: { sources: [], words: [], ...saved.muted },
-};
+const cfg = mergeSettings(readJson(path.join(__dirname, "settings.json"), null));
 
 (async () => {
   const prev = readJson(path.join(site, "issue.json"), null);

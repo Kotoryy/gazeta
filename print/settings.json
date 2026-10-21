@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "sections": [
     {
       "id": "main",
@@ -52,6 +52,14 @@
         {
           "name": "Publishing Perspectives",
           "url": "https://publishingperspectives.com/feed/"
+        },
+        {
+          "name": "Полка",
+          "url": "https://t.me/polka_academy"
+        },
+        {
+          "name": "Канал Константина Мильчина",
+          "url": "https://t.me/milchin"
         }
       ],
       "filter": "книг|издательств|книгоизда|литератур|писател|роман[аеуы]? |поэт|премии? .*(литератур|книж)|non/fiction|ярмарк\\w* книг",
@@ -104,6 +112,14 @@
         {
           "name": "The Guardian · Jazz",
           "url": "https://www.theguardian.com/music/jazz/rss"
+        },
+        {
+          "name": "Клуб Алексея Козлова",
+          "url": "https://t.me/kozlovclub"
+        },
+        {
+          "name": "Клуб Игоря Бутмана",
+          "url": "https://t.me/butmanclub"
         }
       ],
       "filter": "",
@@ -137,6 +153,14 @@
         {
           "name": "Коммерсантъ · Культура",
           "url": "https://www.kommersant.ru/RSS/section-culture.xml"
+        },
+        {
+          "name": "Большой театр",
+          "url": "https://t.me/bolshoi_theatre"
+        },
+        {
+          "name": "Мариинский театр",
+          "url": "https://t.me/mariinsky_theatre"
         }
       ],
       "filter": "филармон|оркестр|симфон|опер[аеыуо]|балет|дирижер|дирижёр|пианист|скрипач|виолончел|консерватор|классическ\\w* музык|камерн\\w* музык|большой театр|мариинск",
@@ -193,6 +217,10 @@
         {
           "name": "Fishing World",
           "url": "https://www.fishingworld.com.au/rss"
+        },
+        {
+          "name": "Carp Today · Telegram",
+          "url": "https://t.me/carptoday"
         }
       ],
       "filter": "рыбалк|рыболов|рыбак|рыбач|улов[аеуы]?[ ,.]|клёв|спиннинг|удочк|удильщик|подлёдн|подледн|нерест|ловл[яиюе] рыб|рыбнадзор|карпфишинг|fishing|angler",
@@ -247,7 +275,8 @@
     "sources": {
       "youla": true,
       "avito": true
-    }
+    },
+    "alerts": []
   },
   "jobs": {
     "keywords": [
