@@ -269,6 +269,15 @@
     "lat": 55.7558,
     "lon": 37.6173
   },
+  "morning": {
+    "autostart": true,
+    "time": "08:00",
+    "notify": true
+  },
+  "links": {
+    "birzha": true,
+    "obozrenie": true
+  },
   "muted": {
     "sources": [],
     "words": []

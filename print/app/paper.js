@@ -145,6 +145,24 @@
     return `<div class="rates"><div class="block-title">Курсы ЦБ${day ? " на " + esc(day) : ""}</div><div class="rate-row">${cells}</div></div>`;
   }
 
+  const books = new Map(); // book id → book, for «На полку»
+
+  function bookHtml(b) {
+    books.set(b.id, b);
+    const shelf = opts.onShelf
+      ? `<span class="act shelf${b.shelved ? " on" : ""}" role="button" tabindex="0" data-shelf="${esc(b.id)}" title="${b.shelved ? "Уже на «Книжной полке»" : "Добавить на «Книжную полку»"}">${b.shelved ? "✓ На полке" : "+ На полку"}</span>`
+      : "";
+    return `<a class="book" href="${esc(safeUrl(b.link))}" target="_blank" rel="noopener">
+      <span class="book-cover"><img src="${esc(safeUrl(b.cover))}" alt="" referrerpolicy="no-referrer" decoding="async"></span>
+      <span class="book-text">
+        ${b.author ? `<span class="book-author">${esc(b.author)}</span>` : ""}
+        <span class="book-title">${esc(b.title)}</span>
+        <span class="book-pub">${esc(b.publisher)}</span>
+        <span class="book-foot">${b.price ? `<b>${b.price.toLocaleString("ru-RU")} ₽</b>` : "<span></span>"}${shelf}</span>
+      </span>
+    </a>`;
+  }
+
   function buildBlocks() {
     byKey.clear();
     const out = [];
@@ -192,6 +210,11 @@
             <div><h4 class="hl">${esc(f.title)}</h4>${f.summary ? `<p>${esc(f.summary)}</p>` : ""}${meta(f)}</div></a></div>`,
       });
       sec.items.forEach((it, i) => i !== fi && add({ kind: "item", sec: sec.id, secTitle: sec.title, html: itemHtml(it) }));
+      // New books of the month from «Литературное обозрение» close the publishing rubric.
+      if (sec.id === "publishing" && issue.novelties?.length) {
+        add({ span: true, kind: "books-head", sec: sec.id, html: `<div class="books-head"><span>Новинки месяца</span><i>из «Литературного обозрения»</i></div>` });
+        issue.novelties.forEach((b) => add({ kind: "book", sec: sec.id, secTitle: sec.title, html: bookHtml(b) }));
+      }
     }
 
     // Stories the reader put aside, kept from issue to issue.
@@ -209,17 +232,22 @@
     add({
       span: true, brk: true, kind: "ads-head", sec: "ads", html: `<div class="ads-head">
         <div class="ads-kicker">Объявления</div><h3>Требуются</h3>
-        <p>${esc(kw)}${jobs ? " · опубликованы " + esc(fDayMonth.format(dayT)) : ""}</p></div>`,
+        <p>${jobs?.fromBirzha
+          ? `из «Биржи труда» · за последние сутки${jobs.total > jobs.items.length ? ` · ещё ${jobs.total - jobs.items.length} на бирже` : ""}`
+          : esc(kw) + (jobs ? " · опубликованы " + esc(fDayMonth.format(dayT)) : "")}</p></div>`,
     });
+    // Two dozen ads at most: the rest wait on the job sites.
+    const JOBS_SHOWN = 24;
     if (jobs?.items.length) {
-      for (const v of jobs.items) {
+      for (const v of jobs.items.slice(0, JOBS_SHOWN)) {
         add({
           kind: "ad", sec: "ads", secTitle: "Требуются", html: `<a class="ad${v.salary ? " top" : ""}" href="${esc(safeUrl(v.url))}" target="_blank" rel="noopener">
             <div class="ad-title">${esc(v.title)}</div>
             ${v.company ? `<div class="ad-company">${esc(v.company)}</div>` : ""}
             ${v.place ? `<div class="ad-place">${esc(v.place)}</div>` : ""}
             ${v.salary ? `<div class="ad-salary">${esc(v.salary)}</div>` : ""}
-            <div class="ad-foot"><span>${esc(v.source)}</span>${v.isNew && v.source !== "hh.ru" ? '<span class="new">новая</span>' : ""}</div></a>`,
+            ${v.status ? `<div class="ad-status">✓ ${esc(v.status)}</div>` : ""}
+            <div class="ad-foot"><span>${v.kind === "order" ? "заказ · " : ""}${esc(v.source)}</span>${v.isNew && v.source !== "hh.ru" ? '<span class="new">новая</span>' : ""}</div></a>`,
         });
       }
     } else {
@@ -227,6 +255,7 @@
     }
     const jobNotes = [];
     if (jobs?.stale) jobNotes.push(`Вакансии из выпуска от ${when(jobs.stale)}: источники сейчас не ответили.`);
+    if (jobs?.items.length > JOBS_SHOWN) jobNotes.push(`Ещё ${jobs.items.length - JOBS_SHOWN} — по ссылкам на поиск.`);
     if (jobs?.hhPeriod === "day") jobNotes.push("Объявления hh.ru — за последние сутки.");
     if (jobs?.notes) jobNotes.push(...jobs.notes);
     const hhLinks = (jobs?.hhLinks || []).map((u, i, a) =>
@@ -237,13 +266,14 @@
 
     const market = issue.market;
     add({
-      span: true, kind: "market-head", sec: "market", html: `<div class="ads-head market-head">
+      span: true, brk: true, kind: "market-head", sec: "market", html: `<div class="ads-head market-head">
         <h3>Барахолка</h3><p>${esc(issue.marketTitle || "Ретро-консоли")} · продают в Москве</p></div>`,
     });
     if (market?.items?.length) {
       for (const m of market.items) {
         add({
-          kind: "ad", sec: "market", secTitle: "Барахолка", html: `<a class="ad lot" href="${esc(safeUrl(m.url))}" target="_blank" rel="noopener">
+          kind: "ad", sec: "market", secTitle: "Барахолка", html: `<a class="ad lot${m.found ? " found" : ""}" href="${esc(safeUrl(m.url))}" target="_blank" rel="noopener">
+            ${m.found ? `<div class="lot-flag">Находка · ${esc(m.found)}</div>` : m.isNew ? `<div class="lot-flag new">Новое</div>` : ""}
             ${m.image ? `<figure class="pic lot-pic"><img src="${esc(safeUrl(m.image))}" alt="" referrerpolicy="no-referrer" decoding="async"></figure>` : ""}
             <div class="ad-title">${esc(m.title)}</div>
             ${m.price ? `<div class="ad-salary">${esc(m.price)}</div>` : ""}
@@ -483,6 +513,16 @@
     render(issue);
   }
 
+  async function shelve(id) {
+    const book = books.get(id);
+    if (!book || book.shelved || !opts.onShelf) return;
+    if (await opts.onShelf(book).catch(() => false)) book.shelved = true;
+    const sel = `[data-shelf="${CSS.escape(id)}"]`;
+    const mark = (el) => { el.classList.add("on"); el.textContent = "✓ На полке"; };
+    for (const p of pages) p.querySelectorAll(sel).forEach(mark);
+    root.querySelectorAll(sel).forEach(mark);
+  }
+
   async function toggleSave(it) {
     if (!opts.onSave) return;
     const key = keyOf(it);
@@ -669,6 +709,7 @@
       if (!b) return false;
       e.preventDefault();
       e.stopPropagation();
+      if (b.dataset.shelf) { shelve(b.dataset.shelf); return true; }
       const it = byKey.get(b.dataset.key);
       if (!it) return true;
       if (b.dataset.act === "save") toggleSave(it); else openMute(b, it);

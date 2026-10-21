@@ -420,3 +420,147 @@ a .acts:has(.act.on) { opacity: 1; }
 .scroll-page .blk.k-head, .scroll-page .blk.k-ads-head, .scroll-page .blk.k-market-head { margin-top: 18px; }
 .scroll-page .ear-toc li span { display: none; }
 @media (max-width: 640px) { .page.scroll-page { padding: 14px 16px 24px; } }
+
+/* ======================= Новые разделы ======================= */
+
+/* New books of the month inside «Книгоиздание» */
+.books-head { display: flex; align-items: baseline; gap: 10px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--hair); padding: 6px 0 4px; margin: 4px 0 10px; }
+.books-head span { font-family: var(--old); font-weight: 700; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; }
+.books-head i { font-family: var(--old); font-size: 12px; color: var(--ink-3); }
+.book { display: grid; grid-template-columns: 62px 1fr; gap: 10px; padding: 0 0 10px; margin-bottom: 10px; border-bottom: 1px solid var(--hair); }
+.book-cover { display: block; aspect-ratio: 2 / 3; background: var(--tint); box-shadow: 1px 2px 0 rgba(40, 30, 10, .18), 0 6px 14px rgba(40, 30, 10, .14); overflow: hidden; }
+.book-cover img { width: 100%; height: 100%; object-fit: cover; display: block; filter: var(--img-filter); mix-blend-mode: var(--img-blend); transition: filter .3s; }
+a.book:hover .book-cover img { filter: none; }
+.book-text { display: flex; flex-direction: column; min-width: 0; }
+.book-author { font-family: var(--old); font-size: 10.5px; letter-spacing: .06em; color: var(--ink-2); }
+.book-title { font-family: var(--head); font-weight: 700; font-size: 15px; line-height: 1.15; margin: 1px 0 2px; }
+.book-pub { font-size: 11.5px; font-style: italic; color: var(--ink-3); }
+.book-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-top: auto; padding-top: 4px; font-size: 12px; }
+.act.shelf { opacity: 1; border: 1px solid var(--ink); border-bottom-style: solid; padding: 0 6px; font-size: 11px; color: var(--ink); }
+.act.shelf:hover, .act.shelf:focus-visible { background: var(--ink); color: var(--paper); }
+.act.shelf.on { background: var(--ink); color: var(--paper); cursor: default; }
+.book .acts, .book .act { opacity: 1; }
+
+/* Classifieds: status from «Биржа», lots new since yesterday and «Ищу» finds */
+.ad-status { font-family: var(--old); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-top: 3px; }
+.lot-flag {
+  display: inline-block; grid-column: 1 / -1; justify-self: start; margin-bottom: 5px;
+  font-family: var(--old); font-size: 9.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  border: 1.5px solid currentColor; padding: 1px 6px; color: var(--accent); transform: rotate(-1.5deg);
+}
+.lot-flag.new { color: var(--ink); }
+.ad.found { border: 2px solid var(--accent); box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 25%, transparent); }
+
+/* «Редакция»: feed health, «Ищу» */
+.feed-health { list-style: none; margin: -4px 0 10px; padding: 0; font-size: 12.5px; }
+.feed-health li { display: flex; align-items: center; gap: 8px; padding: 2px 0; flex-wrap: wrap; }
+.feed-health .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hair); flex: none; }
+.feed-health li.ok .dot { background: #4f7a4a; }
+.feed-health li.bad .dot { background: var(--accent); }
+.feed-health .fh-name { font-weight: 700; }
+.feed-health .fh-state { color: var(--ink-3); font-style: italic; }
+.feed-health li.bad .fh-state { color: var(--accent); font-style: normal; }
+.feed-health select { font: inherit; font-size: 12px; padding: 1px 4px; border: 1px solid var(--hair); background: var(--paper); color: var(--ink); }
+.alerts { display: grid; gap: 6px; margin: 6px 0 8px; }
+.alert-row { display: grid; grid-template-columns: 1fr 140px 26px; gap: 6px; align-items: center; }
+.small-btn { padding: 3px 10px; font-size: 13px; }
+.health-note { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); text-transform: none; letter-spacing: .02em; font-style: italic; }
+
+/* ======================= Полировка: больше газеты ======================= */
+
+:root {
+  --paper: #f5f0e4;
+  --desk: #d7cfbf;
+  --img-filter: grayscale(1) sepia(.12) contrast(1.12) brightness(1.02);
+  --ornament: "❦";
+}
+
+/* The desk: a lit table, the paper casting a soft shadow */
+body { background-image: radial-gradient(ellipse at 50% 30%, rgba(255, 252, 244, .55), rgba(60, 45, 20, .1) 70%, rgba(40, 30, 10, .18)); }
+.slot:not(.blank), .page.scroll-page { box-shadow: 0 1px 1px rgba(60, 45, 20, .2), 0 6px 14px rgba(60, 45, 20, .14), 0 24px 48px rgba(60, 45, 20, .18); }
+
+/* Paper: a faint warm edge, as newsprint yellows from the borders */
+.page { background-image:
+  radial-gradient(ellipse at center, transparent 62%, rgba(150, 120, 60, .07) 100%),
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .4  0 0 0 0 .3  0 0 0 .08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+
+/* Toolbar: a strip of the same paper, set off by a double rule */
+.toolbar { background: color-mix(in srgb, var(--paper) 88%, transparent); border-bottom: 3px double color-mix(in srgb, var(--rule) 70%, transparent); backdrop-filter: blur(4px); }
+.toolbar .brand { font-size: 22px; letter-spacing: .01em; }
+.tb-btn { border-radius: 0; border-color: transparent; transition: border-color .15s, background .15s; }
+.tb-btn:hover { border-color: transparent; background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.tb-arrow { width: 30px; height: 30px; padding: 0 0 3px; border: 1px solid var(--ink-3) !important; border-radius: 50%; }
+.tb-select { border-radius: 0; border-color: color-mix(in srgb, var(--ink) 30%, transparent); background: transparent; }
+
+/* Masthead: the nameplate between rules, ornaments in the corners */
+.mast-top { border-bottom: 1px solid var(--rule); box-shadow: 0 2px 0 var(--paper), 0 4px 0 var(--rule); padding-bottom: 6px; margin-bottom: 4px; }
+.mast-top span:first-child::before { content: var(--ornament) "  "; color: var(--accent); }
+.mast-top span:last-child::after { content: "  " var(--ornament); color: var(--accent); }
+.title { letter-spacing: -.005em; text-shadow: 0 1px 0 rgba(255, 255, 255, .4); }
+.ear { border: 1px solid var(--rule); outline: 1px solid var(--rule); outline-offset: 2px; background: color-mix(in srgb, var(--paper) 70%, white); }
+.ear-label { color: var(--accent); }
+.dateline { border-top-width: 1px; }
+.motto::before, .motto::after { content: " · "; color: var(--accent); }
+
+/* Running head and folio */
+.running { border-bottom: 1px solid var(--rule); box-shadow: 0 2px 0 var(--paper), 0 3px 0 var(--rule); padding-bottom: 5px; margin-bottom: 14px; }
+.folio::before { content: var(--ornament) "  "; color: var(--accent); font-size: 10px; }
+.folio::after { content: "  " var(--ornament); color: var(--accent); font-size: 10px; }
+
+/* Rubric heads: white letters on a black band, as in old dailies */
+.rubric-head { border-top: 0; border-bottom: 1px solid var(--rule); padding: 0 0 3px; align-items: center; }
+.rubric-head h3 { background: var(--ink); color: var(--paper); padding: 4px 12px 3px 10px; font-size: 13.5px; letter-spacing: .24em; }
+.rubric-head .count { padding-top: 2px; }
+.cont-head { border-bottom: 1px solid var(--rule); }
+.cont-head::before { content: "▸ "; color: var(--accent); }
+
+/* Kickers and headlines */
+.kicker { display: inline-flex; align-items: center; gap: 8px; }
+.kicker::after { content: ""; width: 34px; border-top: 2px solid var(--accent); }
+.lead h2 { letter-spacing: -.01em; }
+.feature h4 { font-size: 22px; letter-spacing: -.005em; }
+.item h4 { font-family: var(--head); font-weight: 700; font-size: 16px; line-height: 1.18; letter-spacing: -.003em; }
+.item p, .feature p { hyphens: auto; }
+.feature > div > p::first-letter { font-family: var(--head); font-weight: 900; float: left; font-size: 2.6em; line-height: .8; padding: 4px 5px 0 0; color: var(--ink); }
+.meta { letter-spacing: .02em; }
+
+/* Story separators: a hairline with a dot in the middle */
+.item { border-bottom: 0; position: relative; }
+.item::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(to right, transparent, var(--hair) 18%, var(--hair) 82%, transparent); }
+.columns .item:last-child::after { display: none; }
+
+/* Pictures: printed, with a thin frame and a caption rule */
+figure.pic img { outline: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); outline-offset: -1px; }
+.lead-body figure.pic { box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px var(--hair); }
+
+/* Weather and rates: framed like a reference box */
+.wx { background: color-mix(in srgb, var(--paper) 60%, white); padding: 8px 10px; border: 1px solid var(--hair); border-bottom: 3px double var(--rule); }
+.wx-now .big { color: var(--ink); }
+.rates { padding-top: 6px; }
+.rate .val { letter-spacing: -.01em; }
+
+/* Classifieds: boxed small ads with a tiny label */
+.ads-head h3 { letter-spacing: .16em; }
+.ads-head h3::before, .ads-head h3::after { content: " " var(--ornament) " "; font-size: .5em; vertical-align: middle; color: var(--accent); }
+.ad { background: color-mix(in srgb, var(--paper) 55%, white); box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 10%, transparent); transition: transform .15s, box-shadow .15s; }
+.ad:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 color-mix(in srgb, var(--ink) 18%, transparent); background: color-mix(in srgb, var(--paper) 40%, white); }
+.ad-title { letter-spacing: .03em; }
+
+/* Colophon */
+.colophon { text-align: center; }
+.colophon .block-title::before, .colophon .block-title::after { content: " " var(--ornament) " "; color: var(--accent); }
+
+/* Turning the page: a slightly warmer underside */
+.face.back { background: color-mix(in srgb, var(--paper) 92%, #c9b78f); }
+
+@media (prefers-reduced-motion: reduce) { .ad, .tb-btn { transition: none; } .ad:hover { transform: none; } }
+
+/* Toolbar: one line at every width; less important buttons give way first. */
+.toolbar { gap: 8px; flex-wrap: nowrap; overflow: hidden; }
+.tb-btn { white-space: nowrap; letter-spacing: .05em; padding: 4px 7px; flex: none; }
+.tb-select { max-width: 190px; flex: 0 1 auto; min-width: 0; }
+.indicator { flex: none; min-width: 92px; }
+.health-note { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 1100px) { #shareBtn { display: none; } }
+@media (max-width: 960px) { .toolbar .brand, #publishBtn { display: none; } }
+@media (max-width: 760px) { .health-note { display: none; } }

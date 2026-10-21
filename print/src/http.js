@@ -5,6 +5,10 @@ try {
   const { net } = require("electron");
   if (net && net.fetch) netFetch = net.fetch.bind(net);
 } catch { /* running outside Electron */ }
+if (netFetch === globalThis.fetch) {
+  // Plain Node (the server press) may hang on a host's IPv6 address; IPv4 first.
+  try { require("dns").setDefaultResultOrder("ipv4first"); } catch { /* old Node */ }
+}
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Gazeta/1.0 (RSS reader)";
 

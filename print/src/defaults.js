@@ -6,7 +6,7 @@ const FISHING = "рыбалк|рыболов|рыбак|рыбач|улов[ае
 const BOOKS = "книг|издательств|книгоизда|литератур|писател|роман[аеуы]? |поэт|премии? .*(литератур|книж)|non/fiction|ярмарк\\w* книг";
 
 module.exports = {
-  version: 2,
+  version: 3,
   sections: [
     {
       id: "main",
@@ -30,6 +30,8 @@ module.exports = {
         { name: "Лента · Культура", url: "https://lenta.ru/rss/news/culture" },
         { name: "Publishers Weekly", url: "https://www.publishersweekly.com/pw/feeds/recent/index.xml" },
         { name: "Publishing Perspectives", url: "https://publishingperspectives.com/feed/" },
+        { name: "Полка", url: "https://t.me/polka_academy" },
+        { name: "Канал Константина Мильчина", url: "https://t.me/milchin" },
       ],
       // Only general culture feeds are filtered; dedicated book feeds pass as is.
       filter: BOOKS,
@@ -56,6 +58,8 @@ module.exports = {
         { name: "JazzPeople", url: "https://www.jazzpeople.ru/feed/" },
         { name: "JazzTimes", url: "https://jazztimes.com/feed/" },
         { name: "The Guardian · Jazz", url: "https://www.theguardian.com/music/jazz/rss" },
+        { name: "Клуб Алексея Козлова", url: "https://t.me/kozlovclub" },
+        { name: "Клуб Игоря Бутмана", url: "https://t.me/butmanclub" },
       ],
       filter: "",
       limit: 7,
@@ -71,6 +75,8 @@ module.exports = {
         { name: "Slipped Disc", url: "https://slippedisc.com/feed/" },
         { name: "The Guardian · Classical", url: "https://www.theguardian.com/music/classicalmusicandopera/rss" },
         { name: "Коммерсантъ · Культура", url: "https://www.kommersant.ru/RSS/section-culture.xml" },
+        { name: "Большой театр", url: "https://t.me/bolshoi_theatre" },
+        { name: "Мариинский театр", url: "https://t.me/mariinsky_theatre" },
       ],
       filter: CLASSICAL,
       filterOnly: ["Коммерсантъ · Культура"],
@@ -98,6 +104,7 @@ module.exports = {
         { name: "ТАСС", url: "https://tass.ru/rss/v2.xml" },
         { name: "Wired2Fish", url: "https://www.wired2fish.com/feed/" },
         { name: "Fishing World", url: "https://www.fishingworld.com.au/rss" },
+        { name: "Carp Today · Telegram", url: "https://t.me/carptoday" },
       ],
       filter: FISHING,
       filterOnly: ["Лента", "РИА Новости", "ТАСС"],
@@ -124,6 +131,8 @@ module.exports = {
     limit: 20,
     maxPrice: 0,
     sources: { youla: true, avito: true },
+    // «Ищу»: a lot whose title has all these words and fits the price comes as a notification.
+    alerts: [],
   },
   jobs: {
     keywords: ["редактор", "корректор", "автор", "копирайтер"],
@@ -137,6 +146,11 @@ module.exports = {
   // server, so the site needs its own subdomain with a CNAME to kotoryy.github.io.
   // Publishing makes the issue public, so it happens only when the reader asks.
   web: { autoPublish: false, domain: "gazeta.kotoryy.ru" },
+  // The morning issue: start with Windows into the tray, print by this time, notify.
+  morning: { autostart: true, time: "08:00", notify: true },
+  // Take «Требуются» from «Биржа труда» and new books from «Литературное обозрение»
+  // when those apps are installed on this computer.
+  links: { birzha: true, obozrenie: true },
   // Stories already seen leave the paper unless showRead is on.
   reading: { showRead: false },
   // «Меньше такого»: sources and words that never get into the paper.

@@ -170,6 +170,12 @@ function scrapeHh(url) {
   return scrapePage(url, EXTRACT, { partition: "persist:hh" });
 }
 
+function moneyOnly(s) {
+  const m = String(s || "").replace(/[  ]/g, " ")
+    .match(/(?:от|до)?\s*\d[\d ]*(?:\s*[–-]\s*\d[\d ]*)?\s*(?:₽|руб\.?|Br|\$|€|₸|сум)/i);
+  return m ? m[0].replace(/\s+/g, " ").trim() : "";
+}
+
 async function loadHhSite(cfg) {
   const out = [];
   const runs = [];
@@ -178,7 +184,9 @@ async function loadHhSite(cfg) {
   for (const remote of runs) {
     const items = await scrapeHh(hhSearchUrl(cfg, remote));
     out.push(
-      ...items.map((v) => {
+      ...items.map((raw) => {
+        // The salary block on hh.ru also holds experience and schedule: keep the money only.
+        const v = { ...raw, salary: moneyOnly(raw.salary) };
         const nums = (v.salary.match(/\d[\d ]*/g) || []).map((n) => +n.replace(/ /g, "")).filter((n) => n > 1000);
         const isRemote = remote || v.remote;
         return {

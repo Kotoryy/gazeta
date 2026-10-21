@@ -44,7 +44,7 @@ ${inlineFonts(read("styles.css"))}
     <span id="indicatorSlot"></span>
     <button class="tb-btn tb-arrow" id="nextBtn" title="Следующий разворот (→)" aria-label="Вперёд">›</button>
     <select class="tb-select" id="contents" aria-label="В номере"></select>
-    <button class="tb-btn" id="viewBtn">Читать лентой</button>
+    <button class="tb-btn" id="viewBtn">Лента</button>
     <span class="grow"></span>
     <span class="printed hide-narrow" id="printed"></span>
   </nav>
@@ -69,11 +69,17 @@ ${body}
 <meta name="description" content="Газета: новости, погода в Москве, вакансии и барахолка за ${day}.">
 <meta property="og:title" content="Газета — ${day}">
 <meta property="og:description" content="Новости, погода в Москве, вакансии и барахолка ретро-консолей.">
-${site ? `<link rel="icon" type="image/png" href="icon.png">` : ""}
+${site ? `<link rel="icon" type="image/png" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#f4efe3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Газета">` : ""}
 ${style}
 </head>
 <body>
   ${body}
+${site ? `  <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>` : ""}
 </body>
 </html>
 `;

@@ -1,5 +1,6 @@
 const { XMLParser } = require("fast-xml-parser");
 const { fetchText } = require("./http");
+const { parseChannel, channelOf } = require("./telegram");
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -117,9 +118,17 @@ function parseFeed(xml) {
 
 const feedCache = new Map(); // one download per URL per refresh
 
+// A feed is an RSS/Atom address or a public Telegram channel (t.me/name).
 async function loadFeed(url) {
   if (!feedCache.has(url)) {
-    feedCache.set(url, fetchText(url, { timeout: 20000 }).then(parseFeed));
+    const channel = channelOf(url);
+    feedCache.set(url, channel
+      ? fetchText(`https://t.me/s/${channel}`, { timeout: 20000 }).then((html) => {
+        const items = parseChannel(html);
+        if (!items.length && !/tgme_channel_info/.test(html)) throw new Error("канал не найден");
+        return items;
+      })
+      : fetchText(url, { timeout: 20000 }).then(parseFeed));
   }
   return feedCache.get(url);
 }
@@ -138,11 +147,15 @@ async function buildSection(section, exclude) {
     try { re = new RegExp(section.filter, "i"); } catch { re = null; }
   }
   const errors = [];
+  // How each feed did, for the «здоровье источников» in «Редакция».
+  const status = [];
   const perFeed = await Promise.all(
     section.feeds.map(async (f) => {
       try {
         const items = await loadFeed(f.url);
         const filterThis = re && (!section.filterOnly || section.filterOnly.includes(f.name));
+        const newest = items.reduce((t, i) => Math.max(t, i.date || 0), 0);
+        status.push({ name: f.name, url: f.url, ok: true, items: items.length, newest });
         return items
           .filter((i) => !i.date || now - i.date < maxAge)
           .filter((i) => !filterThis || re.test(i.title + " " + i.summary))
@@ -150,6 +163,7 @@ async function buildSection(section, exclude) {
           .filter((i) => !exclude || !exclude(i, section));
       } catch (e) {
         errors.push(`${f.name}: ${e.message}`);
+        status.push({ name: f.name, url: f.url, ok: false, error: e.message });
         return [];
       }
     })
@@ -164,7 +178,7 @@ async function buildSection(section, exclude) {
   // Russian-language stories get a head start of a day and a half over foreign ones.
   const rank = (i) => i.date + (/[а-яё]/i.test(i.title) ? 36 * 3600000 : 0);
   pool.sort((a, b) => rank(b) - rank(a));
-  return { id: section.id, title: section.title, limit, pool, errors, feeds: section.feeds.length };
+  return { id: section.id, title: section.title, limit, pool, errors, status, feeds: section.feeds.length };
 }
 
 async function loadNews(sections, { exclude } = {}) {

@@ -30,6 +30,11 @@ const cfg = {
     console.log("Ленты не ответили — выпуск на сайте оставлен прежним.");
     return;
   }
+  // «Биржа труда» and «Литературное обозрение» live on the reader's computer:
+  // their vacancies (for a day and a half) and new books come from the last
+  // issue the app published.
+  if (prev?.jobs?.fromBirzha && Date.now() - (prev.jobs.updatedAt || 0) < 36 * 3600000) issue.jobs = prev.jobs;
+  if (prev?.novelties?.length) issue.novelties = prev.novelties.map(({ shelved, ...b }) => b);
   issue.printedBy = "server";
   fs.writeFileSync(path.join(site, "issue.json"), JSON.stringify(issue));
   fs.writeFileSync(path.join(site, "index.html"), buildWebEdition(issue, { site: true }), "utf8");

@@ -12,7 +12,7 @@
   function applyView(v) {
     Paper.setView(v);
     const btn = document.getElementById("viewBtn");
-    btn.textContent = Paper.view === "scroll" ? "Читать разворотами" : "Читать лентой";
+    btn.textContent = Paper.view === "scroll" ? "Развороты" : "Лента";
     btn.title = Paper.view === "scroll" ? "Вернуть страницы, которые перелистываются" : "Одна длинная страница с прокруткой, как раньше";
     try { localStorage.setItem(VIEW_KEY, Paper.view); } catch { /* the choice is just not remembered */ }
   }

@@ -26,12 +26,15 @@ async function buildIssue(cfg, { prev = null, depth = 1, market = null, jobs = c
   const deep = cfg.sections.map((s) => ({ ...s, limit: (s.limit || 8) * depth }));
   const muted = mutedTest(cfg.muted);
   const settle = (p) => p.then((value) => ({ value }), (e) => ({ error: e.message || String(e) }));
+  // GAZETA_TIMING=1 prints how long each part of the issue took.
+  const t0 = Date.now();
+  const timed = (name, p) => (process.env.GAZETA_TIMING ? p.finally(() => console.error(`[время] ${name}: ${((Date.now() - t0) / 1000).toFixed(1)} с`)) : p);
   const [news, weather, jobsRes, marketRes, rates] = await Promise.all([
-    settle(loadNews(deep, { exclude: muted })),
-    settle(loadWeather(cfg.weather)),
-    settle(loadJobs(jobs)),
-    market ? settle(market(cfg.market)) : Promise.resolve({ value: null }),
-    settle(loadRates()),
+    timed("новости", settle(loadNews(deep, { exclude: muted }))),
+    timed("погода", settle(loadWeather(cfg.weather))),
+    timed("вакансии", settle(loadJobs(jobs))),
+    timed("барахолка", market ? settle(market(cfg.market)) : Promise.resolve({ value: null })),
+    timed("курсы", settle(loadRates())),
   ]);
 
   const sections = (news.value || []).map((s) => ({ ...s, limit: cfg.sections.find((c) => c.id === s.id)?.limit || 8 }));
