@@ -564,3 +564,70 @@ figure.pic img { outline: 1px solid color-mix(in srgb, var(--ink) 18%, transpare
 @media (max-width: 1100px) { #shareBtn { display: none; } }
 @media (max-width: 960px) { .toolbar .brand, #publishBtn { display: none; } }
 @media (max-width: 760px) { .health-note { display: none; } }
+
+/* ======================= Краски: немного цвета, как в двухкрасочной печати ======================= */
+/* Each rubric prints in its own muted ink; everything else stays black on newsprint. */
+:root {
+  --ink-red: #9a2a1f;
+  --ink-blue: #2b4f74;
+  --ink-green: #3f6440;
+  --ink-ochre: #9a6a17;
+  --ink-plum: #6c3a5c;
+  --ink-teal: #2c6a68;
+  --accent: var(--ink-red);
+  --paper: #f6f0e2;
+  /* Photos: no longer plain grey, but toned warm like an old print. */
+  --img-filter: grayscale(.85) sepia(.32) saturate(1.25) contrast(1.06) brightness(1.02);
+}
+[data-tone] { --tone: var(--ink); }
+[data-tone="main"] { --tone: var(--ink-red); }
+[data-tone="publishing"] { --tone: var(--ink-plum); }
+[data-tone="literature"] { --tone: var(--ink-blue); }
+[data-tone="jazz"] { --tone: var(--ink-ochre); }
+[data-tone="classical"] { --tone: var(--ink-teal); }
+[data-tone="science"] { --tone: var(--ink-green); }
+[data-tone="fishing"] { --tone: var(--ink-blue); }
+[data-tone="games"] { --tone: var(--ink-plum); }
+[data-tone="saved"] { --tone: var(--ink-red); }
+[data-tone="ads"] { --tone: var(--ink-ochre); }
+[data-tone="market"] { --tone: var(--ink-teal); }
+
+/* Rubric bands, continuation marks and kickers take the rubric's ink */
+[data-tone] .rubric-head h3 { background: var(--tone); }
+[data-tone] .rubric-head { border-bottom-color: var(--tone); }
+.blk.k-cont[data-tone] { border-bottom-color: var(--tone); }
+.blk.k-cont[data-tone]::before { color: var(--tone); }
+[data-tone] .kicker { color: var(--tone); }
+[data-tone] .kicker::after { border-top-color: var(--tone); }
+[data-tone] .books-head { border-top-color: var(--tone); }
+[data-tone] .books-head span { color: var(--tone); }
+a[data-tone]:hover .hl, [data-tone] a:hover .hl { color: var(--tone); text-decoration-color: var(--tone); }
+.item[data-tone] .meta, .feature .meta { color: color-mix(in srgb, var(--tone, var(--ink-3)) 55%, var(--ink-3)); }
+.feature > div > p::first-letter { color: var(--tone, var(--ink)); }
+.lead p.summary::first-letter { color: var(--ink-red); }
+
+/* Classifieds: a colored stamp over the heading, frames stay black */
+[data-tone] .ads-kicker, [data-tone].ads-head .ads-kicker { color: var(--tone); }
+.blk[data-tone="ads"] .ads-head h3::before, .blk[data-tone="ads"] .ads-head h3::after { color: var(--ink-ochre); }
+.blk[data-tone="market"] .ads-head h3::before, .blk[data-tone="market"] .ads-head h3::after { color: var(--ink-teal); }
+.ad .ad-salary { color: color-mix(in srgb, var(--ink) 80%, var(--tone, var(--ink))); }
+.lot-flag.new { color: var(--ink-teal); }
+
+/* Weather and rates: a touch of sky and of market ink */
+.wx { background: linear-gradient(to bottom, color-mix(in srgb, var(--ink-blue) 6%, var(--paper)), color-mix(in srgb, var(--paper) 70%, white)); border-color: color-mix(in srgb, var(--ink-blue) 25%, var(--hair)); }
+.wx .block-title { color: var(--ink-blue); }
+.wx-now .big { color: var(--ink-blue); }
+.rates .block-title { color: var(--ink-green); }
+.rate .trend { font-weight: 700; }
+.rate .trend[title^="Выше"] { color: var(--ink-red); }
+.rate .trend[title^="Ниже"] { color: var(--ink-green); }
+
+/* Masthead: the nameplate stays black, its frame picks up the red ink */
+.ear-label, .mast-top span::before, .mast-top span::after { color: var(--ink-red); }
+.ear li a:hover { color: var(--ink-red); }
+.title { color: var(--ink); }
+.dateline span:first-child { color: var(--ink-red); }
+
+/* Toolbar: a red thread under the double rule */
+.toolbar { box-shadow: 0 1px 0 color-mix(in srgb, var(--ink-red) 35%, transparent); }
+.tb-btn:hover { color: var(--ink-red); }

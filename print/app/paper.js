@@ -348,6 +348,7 @@
       n.classList.add("blk", "k-" + b.kind);
       if (b.span) n.classList.add("span");
       n.dataset.bid = b.bid;
+      if (b.sec) n.dataset.tone = b.sec; // each rubric prints in its own ink
       return n;
     };
     const placed = new Set();
@@ -385,6 +386,7 @@
           if (b.secTitle && b.kind !== "head") {
             const c = toNode(`<div class="cont-head">${esc(b.secTitle)} <i>— продолжение</i></div>`);
             c.classList.add("blk", "span", "k-cont");
+            if (b.sec) c.dataset.tone = b.sec;
             body.append(c);
           }
         }
@@ -631,6 +633,7 @@
       n.classList.add("blk", "k-" + b.kind);
       if (b.span) n.classList.add("span");
       n.dataset.bid = b.bid;
+      if (b.sec) n.dataset.tone = b.sec; // each rubric prints in its own ink
       if (b.sec) {
         n.dataset.sec = b.sec;
         if (!(b.sec in sectionPage)) sectionPage[b.sec] = 0;
