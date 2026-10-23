@@ -190,8 +190,11 @@ async function loadNews(sections, { exclude } = {}) {
     const items = [];
     for (const it of pool) {
       if (items.length >= limit) break;
-      if (seen.has(it.key)) continue;
+      // A site and its Telegram channel often post the same story: one is enough.
+      const titleKey = "t:" + it.title.toLowerCase().replace(/[^a-zа-яё0-9]+/g, " ").trim().slice(0, 80);
+      if (seen.has(it.key) || seen.has(titleKey)) continue;
       seen.add(it.key);
+      seen.add(titleKey);
       items.push(it);
     }
     return { ...sec, items };

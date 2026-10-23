@@ -20,6 +20,12 @@ function mergeSettings(saved) {
       }
     }
   }
+  if ((saved.version || 1) < 4 && saved.sections && !saved.sections.some((s) => s.id === "theatre")) {
+    // v4 added the theatre rubric: right after classical music, or at the end.
+    const theatre = structuredClone(defaults.sections.find((s) => s.id === "theatre"));
+    const at = saved.sections.findIndex((s) => s.id === "classical");
+    saved.sections.splice(at >= 0 ? at + 1 : saved.sections.length, 0, theatre);
+  }
   return {
     ...structuredClone(defaults),
     ...saved,
