@@ -585,6 +585,7 @@ figure.pic img { outline: 1px solid color-mix(in srgb, var(--ink) 18%, transpare
 [data-tone="literature"] { --tone: var(--ink-blue); }
 [data-tone="jazz"] { --tone: var(--ink-ochre); }
 [data-tone="classical"] { --tone: var(--ink-teal); }
+[data-tone="theatre"] { --tone: #7a2440; } /* wine-red, the colour of a theatre curtain */
 [data-tone="science"] { --tone: var(--ink-green); }
 [data-tone="fishing"] { --tone: var(--ink-blue); }
 [data-tone="games"] { --tone: var(--ink-plum); }

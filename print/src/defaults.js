@@ -3,10 +3,11 @@
 
 const CLASSICAL = "филармон|оркестр|симфон|опер[аеыуо]|балет|дирижер|дирижёр|пианист|скрипач|виолончел|консерватор|классическ\\w* музык|камерн\\w* музык|большой театр|мариинск";
 const FISHING = "рыбалк|рыболов|рыбак|рыбач|улов[аеуы]?[ ,.]|клёв|спиннинг|удочк|удильщик|подлёдн|подледн|нерест|ловл[яиюе] рыб|рыбнадзор|карпфишинг|fishing|angler";
+const THEATRE = "(?<!кино)театр|спектакл|постановк|труппа|режиссёр[а-я]* (спектакл|постановк)|«золот[а-я]* маск|золотая маска|мхт|ленком|вахтангов|малый театр|сатирикон|мастерск[а-я]* фоменко|премьер[а-я]* (спектакл|в театре)";
 const BOOKS = "книг|издательств|книгоизда|литератур|писател|роман[аеуы]? |поэт|премии? .*(литератур|книж)|non/fiction|ярмарк\\w* книг";
 
 module.exports = {
-  version: 3,
+  version: 4,
   sections: [
     {
       id: "main",
@@ -80,6 +81,24 @@ module.exports = {
       ],
       filter: CLASSICAL,
       filterOnly: ["Коммерсантъ · Культура"],
+      limit: 8,
+      maxAgeDays: 5,
+    },
+    {
+      id: "theatre",
+      title: "Театр",
+      feeds: [
+        { name: "Журнал «Театр.»", url: "https://oteatre.info/feed/" },
+        { name: "Театръ", url: "https://t.me/oteatre" },
+        { name: "Театр Вахтангова", url: "https://t.me/vakhtangov_theatre" },
+        { name: "Ленком", url: "https://t.me/teatrlenkom" },
+        { name: "Малый театр", url: "https://t.me/maly_theatre" },
+        { name: "Коммерсантъ · Культура", url: "https://www.kommersant.ru/RSS/section-culture.xml" },
+        { name: "Лента · Культура", url: "https://lenta.ru/rss/news/culture" },
+        { name: "The Guardian · Stage", url: "https://www.theguardian.com/stage/rss" },
+      ],
+      filter: THEATRE,
+      filterOnly: ["Коммерсантъ · Культура", "Лента · Культура"],
       limit: 8,
       maxAgeDays: 5,
     },
